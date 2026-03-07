@@ -15,6 +15,7 @@ def get_ollama_responce(question: str="", context: str= ""):
                         context to answer the question.If the answer is 
                         not in the context, say "I don't know based on 
                         the provided documents."
+                        Do not add examples, extra questions, or extra conversation.
 
                         Context:
                         {context}
@@ -26,7 +27,7 @@ def get_ollama_responce(question: str="", context: str= ""):
         # Plain chat prompt — used in Phase 3
         prompt = f"""You are a helpful assistant.
                     Answer the following question clearly and concisely.
-
+                    Do not add examples, extra questions, or extra conversation.
                     Question: {question}
 
                     Answer:"""
