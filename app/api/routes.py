@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.api.models import ChatResponse,ChatRequest,HelathResponse
 from app.core.config import APP_NAME,APP_VERSION
+from app.services.ollama_service import get_ollama_responce
 
 
 router = APIRouter()
@@ -21,11 +22,17 @@ def chat(request: ChatRequest):
             status_code = 400,
             detail= "Question cannot be empty"
         )
-    dummy_answer = f"You asked: '{request.question}'. Ollama will answer this in Phase 3!"
+    try:
+        answer = get_ollama_responce(question=request.question)
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Ollama error: {str(e)}. Is Ollama running ? "
+        )
 
     return ChatResponse(
         question=request.question,
-        answer=dummy_answer,
+        answer=answer,
         sources=[]
     )
 
