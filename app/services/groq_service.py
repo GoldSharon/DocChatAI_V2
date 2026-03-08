@@ -14,11 +14,11 @@ def get_groq_response(question: str, context: str = "") -> str:
 
     if context.strip():
         # RAG prompt — context injected here
-        system_prompt = """You are a helpful assistant that answers questions 
-based strictly on the provided document context.
-If the answer is not found in the context, say: 
-'I could not find the answer in the provided documents.'
-Do not make up answers. Be concise and precise."""
+        system_prompt = """You are a helpful assistant analyzing documents.
+Answer the question using the provided context.
+Summarize and explain what you find in a clear, conversational way.
+If the context contains partial information, use it to give the best possible answer.
+Only say you cannot find the answer if the context is completely unrelated to the question."""
 
         user_message = f"""Context from documents:
 {context}
@@ -29,8 +29,10 @@ Answer based on the context above:"""
 
     else:
         # Plain chat — no context
-        system_prompt = """You are a helpful assistant. 
-Answer clearly and concisely in 2-3 sentences maximum."""
+        system_prompt = """You are a helpful assistant.
+Answer clearly and conversationally.
+For factual questions like math, give direct answers.
+For general questions, be concise and helpful."""
 
         user_message = question
 
@@ -40,7 +42,7 @@ Answer clearly and concisely in 2-3 sentences maximum."""
             {"role": "system", "content": system_prompt},
             {"role": "user",   "content": user_message}
         ],
-        temperature=0.2,    # low = more factual, less creative
+        temperature=0.3,
         max_tokens=512
     )
 

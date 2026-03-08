@@ -91,12 +91,9 @@ def chunk_text(text: str)-> list[str]:
     return chunks
 
 def save_document_metadata(doc_id: str, filename: str, chunks: list[str]):
-
     """
     Save document info to a simple JSON file.
-    In Phase 5, FAISS index will reference these chunk IDs.
     """
-
     os.makedirs("data", exist_ok=True)
     metadata = {
         "doc_id": doc_id,
@@ -106,17 +103,20 @@ def save_document_metadata(doc_id: str, filename: str, chunks: list[str]):
     }
     path = f"data/{doc_id}_metadata.json"
 
-    return path 
+    # ← THIS WAS MISSING — actually write the file!
+    with open(path, "w") as f:
+        json.dump(metadata, f, indent=2)
 
-def load_document_metadata(doc_id: str)-> dict:
+    return path
 
+def load_document_metadata(doc_id: str) -> dict:
     """
     Load a document's metadata by its ID.
     """
     path = f"data/{doc_id}_metadata.json"
     if not os.path.exists(path):
-        raise FileExistsError(f"Document {doc_id} not found")
-    with open(path,"r") as f:
+        raise FileNotFoundError(f"Document {doc_id} not found")  # ← fixed error type
+    with open(path, "r") as f:
         return json.load(f)
     
 def list_all_documents()-> list[dict]:

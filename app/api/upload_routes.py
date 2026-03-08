@@ -84,3 +84,20 @@ def get_document(doc_id: str):
 @upload_router.get("/index/stats")
 def index_stats():
     return get_index_stats()
+
+@upload_router.delete("/session")
+def clear_session():
+    """Delete all uploaded files, metadata and FAISS index."""
+    import shutil
+    from app.services import faiss_services
+
+    for folder in ["uploads", "data"]:
+        if os.path.exists(folder):
+            shutil.rmtree(folder)
+            os.makedirs(folder)
+
+    # Reset FAISS in memory
+    faiss_services.faiss_index = None
+    faiss_services.chunk_store = []
+
+    return {"message": "Session cleared successfully"}

@@ -1,11 +1,15 @@
 from dotenv import load_dotenv
+from pathlib import Path
 import os
 
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
 
 APP_NAME    = "DocChat"
 APP_VERSION = "0.1.0"
 DEBUG       = True
+
+
 
 # Ollama (keeping for local fallback)
 OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL", "llama3.2")
