@@ -5,27 +5,34 @@ import faiss
 from sentence_transformers import SentenceTransformer
 from app.core.config import FAISS_INDEX_DIR, EMBEDDING_MODEL
 
-print("[FAISS] Loading embedding model...")
-embedder = SentenceTransformer(EMBEDDING_MODEL)
-print("[FAISS] Embedding model loaded!")
+# ── Lazy model loading ─────────────────────────
+_embedder = None
 
+def get_embedder():
+    global _embedder
+    if _embedder is None:
+        print("[FAISS] Loading embedding model...")
+        _embedder = SentenceTransformer(EMBEDDING_MODEL)
+        print("[FAISS] Embedding model loaded!")
+    return _embedder
+
+# ── State ──────────────────────────────────────
 chunk_store: list[dict] = []
 faiss_index = None
 
-INDEX_PATH      = "data/faiss.index"
+INDEX_PATH       = "data/faiss.index"
 CHUNK_STORE_PATH = "data/chunk_store.json"
 
 
 def get_embedding(text: str) -> np.ndarray:
-    return embedder.encode([text], convert_to_numpy=True).astype("float32")
+    return get_embedder().encode([text], convert_to_numpy=True).astype("float32")
 
 
 def get_embeddings(texts: list[str]) -> np.ndarray:
-    return embedder.encode(texts, convert_to_numpy=True).astype("float32")
+    return get_embedder().encode(texts, convert_to_numpy=True).astype("float32")
 
 
 def save_index():
-    """Save FAISS index and chunk store to disk."""
     if faiss_index is None:
         return
     os.makedirs("data", exist_ok=True)
@@ -36,7 +43,6 @@ def save_index():
 
 
 def load_index():
-    """Load FAISS index and chunk store from disk on startup."""
     global faiss_index, chunk_store
     if os.path.exists(INDEX_PATH) and os.path.exists(CHUNK_STORE_PATH):
         faiss_index = faiss.read_index(INDEX_PATH)
@@ -76,7 +82,7 @@ def add_document_to_index(doc_id: str, chunks: list[str]):
             "chunk": chunk
         })
 
-    save_index()   # ← persist after every upload
+    save_index()
     print(f"[FAISS] Total chunks in index: {faiss_index.ntotal}")
 
 
@@ -112,5 +118,5 @@ def get_index_stats() -> dict:
     }
 
 
-# Load on startup automatically
+# Load saved index on startup (no model needed for this)
 load_index()
