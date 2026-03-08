@@ -14,3 +14,7 @@ UPLOAD_DIR      = "uploads"
 CHUNK_SIZE      = 500    # characters per chunk
 CHUNK_OVERLAP   = 50     # overlap between chunks (avoids cutting sentences)
 ALLOWED_TYPES   = [".pdf", ".txt"]
+
+# FAISS + Embeddings          ← NEW
+FAISS_INDEX_DIR  = "data/faiss"
+EMBEDDING_MODEL  = "all-MiniLM-L6-v2" 
