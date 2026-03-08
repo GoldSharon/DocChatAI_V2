@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from app.api.models import ChatResponse,ChatRequest,HelathResponse
 from app.core.config import APP_NAME,APP_VERSION
 from app.services.ollama_service import get_ollama_responce
-
+from app.services.faiss_services import search_similar_chunks
 
 router = APIRouter()
 
@@ -56,3 +56,26 @@ def ask(request:ChatRequest):
         "source": []
     }
 
+@router.get("/search")
+def search_chunks(query: str, top_k: int = 3):
+    """
+    Test FAISS search directly.
+    Use this to verify retrieval is working before hooking up LLM.
+    """
+    if not query.strip():
+        raise HTTPException(status_code=400, detail="Query cannot be empty")
+
+    results = search_similar_chunks(query=query, top_k=top_k)
+
+    if not results:
+        return {
+            "query": query,
+            "results": [],
+            "message": "No documents indexed yet. Upload a document first."
+        }
+
+    return {
+        "query": query,
+        "top_k": top_k,
+        "results": results
+    }
