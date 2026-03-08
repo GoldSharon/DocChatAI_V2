@@ -1,34 +1,38 @@
 from fastapi import APIRouter, HTTPException
-from app.api.models import ChatResponse,ChatRequest,HelathResponse
-from app.core.config import APP_NAME,APP_VERSION
-from app.services.ollama_service import get_ollama_responce
+from app.api.models import ChatRequest, ChatResponse
+from app.core.config import APP_NAME, APP_VERSION, GROQ_MODEL
+from app.services.groq_service import get_groq_response, check_groq_connection
 from app.services.faiss_services import search_similar_chunks
+from app.services.rag_service import get_rag_response
 
 router = APIRouter()
 
-@router.get("/health",response_model=HelathResponse)
+
+# ── Health Check ───────────────────────────────────────────────────────
+
+@router.get("/health")
 def health_check():
-    return HelathResponse(
-        status="ok",
-        version=APP_VERSION,
-        app_name=APP_NAME
-    )
+    groq_ok = check_groq_connection()
+    return {
+        "status": "ok",
+        "version": APP_VERSION,
+        "app_name": APP_NAME,
+        "groq_connected": groq_ok,
+        "model": GROQ_MODEL
+    }
 
-@router.post("/chat",response_model=ChatResponse)
+
+# ── Plain Chat (Groq, no RAG) ──────────────────────────────────────────
+
+@router.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest):
-
     if not request.question.strip():
-        raise HTTPException(
-            status_code = 400,
-            detail= "Question cannot be empty"
-        )
+        raise HTTPException(status_code=400, detail="Question cannot be empty")
+
     try:
-        answer = get_ollama_responce(question=request.question)
+        answer = get_groq_response(question=request.question)
     except Exception as e:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Ollama error: {str(e)}. Is Ollama running ? "
-        )
+        raise HTTPException(status_code=503, detail=f"Groq error: {str(e)}")
 
     return ChatResponse(
         question=request.question,
@@ -36,32 +40,34 @@ def chat(request: ChatRequest):
         sources=[]
     )
 
-@router.get("/documents")
-def list_documents():
-    return {
-        "documents": [],
-        "message" : "NO documents uploads yet. Coming in Phase 4!"
 
-    }
+# ── RAG Ask (FAISS + Groq) — THE MAIN ENDPOINT ────────────────────────
 
 @router.post("/ask")
-def ask(request:ChatRequest):
+def ask(request: ChatRequest):
+    """
+    Full RAG pipeline:
+    Upload a doc first, then ask questions about it.
+    Optionally pass document_id to query a specific doc.
+    """
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
-        
-    return {
-        "question": request.question,
-        "answer" : "FUll RAG answer coming in Phase 5!",
-        "document_id" : request.document_id or None,
-        "source": []
-    }
+
+    try:
+        result = get_rag_response(
+            question=request.question,
+            doc_id=request.document_id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"RAG error: {str(e)}")
+
+    return result
+
+
+# ── Search Chunks (debug/test) ─────────────────────────────────────────
 
 @router.get("/search")
 def search_chunks(query: str, top_k: int = 3):
-    """
-    Test FAISS search directly.
-    Use this to verify retrieval is working before hooking up LLM.
-    """
     if not query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
 
@@ -71,11 +77,7 @@ def search_chunks(query: str, top_k: int = 3):
         return {
             "query": query,
             "results": [],
-            "message": "No documents indexed yet. Upload a document first."
+            "message": "No documents indexed yet."
         }
 
-    return {
-        "query": query,
-        "top_k": top_k,
-        "results": results
-    }
+    return {"query": query, "top_k": top_k, "results": results}
