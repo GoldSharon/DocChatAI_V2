@@ -8,16 +8,13 @@ from app.api.upload_routes import upload_router
 import os, shutil
 
 def clear_session_data():
-    """Wipe all uploaded files and stored data on startup."""
     for folder in ["uploads", "data"]:
         if os.path.exists(folder):
             shutil.rmtree(folder)
-            os.makedirs(folder)
+        os.makedirs(folder)
     print("[Startup] Session data cleared")
 
-# Clear on every startup
 clear_session_data()
-
 
 app = FastAPI(
     title=APP_NAME,
@@ -35,8 +32,12 @@ app.add_middleware(
 app.include_router(router, prefix="/api/v1")
 app.include_router(upload_router, prefix="/api/v1")
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+# Serve frontend static files
+if os.path.exists("app/static"):
+    app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 @app.get("/")
 def root():
-    return FileResponse("app/static/index.html")
+    if os.path.exists("app/static/index.html"):
+        return FileResponse("app/static/index.html")
+    return {"message": f"Welcome to {APP_NAME}!", "docs": "/docs"}
