@@ -9,6 +9,7 @@ app_file: app/main.py
 pinned: false
 license: mit
 short_description: AI chat with documents using RAG
+---
 ---------------------------------------------------
 
 # DocChat AI 📄
