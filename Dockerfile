@@ -1,3 +1,11 @@
-(venv) (base) gold-sharon@gold-sharon-Dell-G15-5520:~/Desktop/Projects/docchat$ python3 --version
-Python 3.13.7
-(venv) (base) gold-sharon@gold-sharon-Dell-G15-5520:~/Desktop/Projects/docchat$ 
+FROM python:3.10
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]
