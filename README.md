@@ -7,7 +7,7 @@ sdk: docker
 app_file: app/main.py
 pinned: false
 license: mit
-short_description: Chat with your documents using AI (PDF, DOCX, TXT) with FAISS
+short_description: AI chat with documents using RAG
 ---
 
 A RAG-powered document Q&A application. Upload any PDF or TXT document and ask questions about it — powered by FAISS vector search and Groq LLM.
