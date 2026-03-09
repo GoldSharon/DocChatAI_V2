@@ -13,7 +13,7 @@ short_description: AI chat with documents using RAG
 A RAG-powered document Q&A application. Upload any PDF or TXT document and ask questions about it — powered by FAISS vector search and Groq LLM.
 
 ## 🔗 Live Demo
-👉 **https://docchatai-v2.onrender.com/**
+👉 **https://huggingface.co/spaces/GoldSharon/docchat-ai/**
 
 > ⚠️ Hosted on Render free tier — first load may take 30–60 seconds to wake up.
 
