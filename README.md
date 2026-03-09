@@ -1,4 +1,5 @@
 ---
+
 title: Docchat AI
 emoji: 💻
 colorFrom: blue
@@ -8,160 +9,206 @@ app_file: app/main.py
 pinned: false
 license: mit
 short_description: AI chat with documents using RAG
----
+---------------------------------------------------
 
-A RAG-powered document Q&A application. Upload any PDF or TXT document and ask questions about it — powered by FAISS vector search and Groq LLM.
+# DocChat AI 📄
 
-## 🔗 Live Demo
-👉 **https://huggingface.co/spaces/GoldSharon/docchat-ai/**
+A **Retrieval-Augmented Generation (RAG)** powered document Q&A application.
+Upload **PDF or TXT documents** and ask questions about them using **semantic search + LLM reasoning**.
 
-> ⚠️ Hosted on Render free tier — first load may take 30–60 seconds to wake up.
-
----
-
-## 🛠 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Backend | FastAPI (Python) |
-| LLM | Groq API (gpt-oss-20b) |
-| Vector DB | FAISS (in-memory) |
-| Embeddings | sentence-transformers (all-MiniLM-L6-v2) |
-| Frontend | HTML + CSS + Vanilla JS |
-| Deployment | Render (free tier) |
+The system retrieves relevant document chunks using **FAISS vector search** and generates answers using the **Groq LLM API**.
 
 ---
 
-## ✨ Features
+# 🔗 Live Demo
 
-- 📄 Upload PDF or TXT documents
-- 🔍 Semantic search using FAISS vector embeddings
-- 🤖 Context-aware answers using RAG pipeline
-- 💬 General chat mode when no document is selected
-- 📐 Markdown rendering in responses
-- 🗑 Auto session clear on server restart
+👉 https://huggingface.co/spaces/GoldSharon/docchat-ai
+
+> ⚠️ Hosted on Hugging Face Spaces (free CPU tier).
+> The app may take **20–60 seconds to start** if the Space is sleeping.
 
 ---
 
-## 🚀 Run Locally
+# 🛠 Tech Stack
 
-### 1. Clone the repo
+| Layer           | Technology                   |
+| --------------- | ---------------------------- |
+| Backend         | FastAPI (Python)             |
+| LLM             | Groq API                     |
+| Vector Database | FAISS                        |
+| Embeddings      | sentence-transformers        |
+| Frontend        | HTML + CSS + Vanilla JS      |
+| Deployment      | Hugging Face Spaces (Docker) |
+
+---
+
+# ✨ Features
+
+• Upload **PDF or TXT documents**
+• **Semantic search** using FAISS vector embeddings
+• **Context-aware answers** via RAG pipeline
+• **General chat mode** when no document is selected
+• **Markdown formatted responses**
+• **Automatic session reset** on restart
+
+---
+
+# 🚀 Run Locally
+
+### 1. Clone the repository
+
 ```bash
 git clone https://github.com/YOUR_USERNAME/docchat.git
 cd docchat
 ```
 
 ### 2. Create virtual environment
+
 ```bash
 python -m venv venv
-source venv/bin/activate      # Mac/Linux
-venv\Scripts\activate         # Windows
+source venv/bin/activate
 ```
 
+Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+---
+
 ### 3. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Set up environment variables
-```bash
-cp .env.example .env
-# Edit .env and add your GROQ_API_KEY
+---
+
+### 4. Set environment variables
+
+Create `.env`
+
+```env
+GROQ_API_KEY=your_api_key_here
+GROQ_MODEL=openai/gpt-oss-20b
 ```
 
-### 5. Run the app
+You can get a free key from
+👉 https://console.groq.com
+
+---
+
+### 5. Run the application
+
 ```bash
 uvicorn app.main:app --reload
 ```
 
-### 6. Open in browser
+---
+
+### 6. Open the browser
+
 ```
 http://localhost:8000
 ```
 
 ---
 
-## 📁 Project Structure
+# 📁 Project Structure
+
 ```
 docchat/
 ├── app/
 │   ├── api/
-│   │   ├── routes.py          # /chat, /ask, /search endpoints
-│   │   └── upload_routes.py   # /upload, /documents endpoints
+│   │   ├── routes.py
+│   │   └── upload_routes.py
 │   ├── core/
-│   │   └── config.py          # environment config
+│   │   └── config.py
 │   ├── services/
-│   │   ├── groq_service.py    # Groq LLM integration
-│   │   ├── faiss_service.py   # vector index + similarity search
-│   │   ├── document_service.py# PDF/TXT parsing + chunking
-│   │   └── rag_service.py     # full RAG pipeline
+│   │   ├── groq_service.py
+│   │   ├── faiss_service.py
+│   │   ├── document_service.py
+│   │   └── rag_service.py
 │   ├── static/
-│   │   ├── index.html         # frontend UI
-│   │   ├── style.css          # styling
-│   │   └── app.js             # frontend logic
-│   └── main.py                # FastAPI app entry point
-├── .env.example
-├── render.yaml
+│   │   ├── index.html
+│   │   ├── style.css
+│   │   └── app.js
+│   └── main.py
+├── Dockerfile
 ├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## 🔑 Environment Variables
+# 🔑 Environment Variables
 
-| Variable | Description | Default |
-|---|---|---|
-| `GROQ_API_KEY` | Your Groq API key | required |
-| `GROQ_MODEL` | Groq model to use | `openai/gpt-oss-20b` |
-| `MIN_RELEVANCE_SCORE` | FAISS distance threshold | `3.0` |
-| `CHUNK_SIZE` | Characters per chunk | `500` |
-| `CHUNK_OVERLAP` | Overlap between chunks | `50` |
-
-Get a free Groq API key at 👉 https://console.groq.com
+| Variable            | Description                |
+| ------------------- | -------------------------- |
+| GROQ_API_KEY        | API key for Groq LLM       |
+| GROQ_MODEL          | Model used for generation  |
+| MIN_RELEVANCE_SCORE | FAISS similarity threshold |
+| CHUNK_SIZE          | Document chunk size        |
+| CHUNK_OVERLAP       | Overlap between chunks     |
 
 ---
 
-## 🧠 How RAG Works
+# 🧠 How the RAG Pipeline Works
+
 ```
 User uploads document
         ↓
-Text extracted → split into chunks
+Text extracted and split into chunks
         ↓
-Chunks → embeddings (sentence-transformers)
+Chunks converted to embeddings
         ↓
-Embeddings stored in FAISS index
+Stored in FAISS vector index
         ↓
-User asks question
+User asks a question
         ↓
-Question → embedding → FAISS similarity search
+Question converted to embedding
         ↓
-Top matching chunks retrieved as context
+FAISS retrieves relevant chunks
         ↓
-Context + question → Groq LLM → answer
+Context + question sent to LLM
+        ↓
+LLM generates final answer
 ```
 
 ---
 
-## 📸 Screenshot
+# ☁️ Deployment
 
-> Upload a document → select it → ask questions → get answers with sources
+This project is deployed on **Hugging Face Spaces using Docker**.
+
+Steps used:
+
+1. Create a Space
+2. Select **Docker SDK**
+3. Add `Dockerfile`
+4. Push project via Git
+5. Add secrets in Space settings:
+
+```
+GROQ_API_KEY
+GROQ_MODEL
+```
+
+The Space automatically builds and deploys the application.
 
 ---
 
-## 🤝 Contributing
+# 🤝 Contributing
 
-1. Fork the repo
-2. Create a branch (`git checkout -b feature/my-feature`)
-3. Commit changes (`git commit -m "add my feature"`)
-4. Push branch (`git push origin feature/my-feature`)
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to your fork
 5. Open a Pull Request
 
 ---
 
-## 📜 License
+# 📜 License
 
 MIT License — free to use and modify.
-
----
-
