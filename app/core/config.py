@@ -30,5 +30,5 @@ FAISS_INDEX_DIR = "data/faiss"
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
 # RAG settings                      ← NEW
-TOP_K_CHUNKS        = 3     # how many chunks to retrieve
-MIN_RELEVANCE_SCORE = 1.5   # max distance allowed (lower = stricter)
+TOP_K_CHUNKS        = 5
+MIN_RELEVANCE_SCORE = 2.5   # L2 distances can easily go above 1.5

@@ -4,6 +4,7 @@ from typing import Optional
 class ChatRequest(BaseModel):
     question:str 
     document_id : Optional[str] = None 
+    session_id: Optional[str] = None 
 
 class DocumentUploadResponse(BaseModel):
     document_id : str 
